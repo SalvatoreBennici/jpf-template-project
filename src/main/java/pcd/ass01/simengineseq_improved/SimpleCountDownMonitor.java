@@ -13,26 +13,24 @@ public class SimpleCountDownMonitor implements CountDownMonitor {
 
     @Override
     public synchronized void dec() {
-        this.count--;
-        notifyAll();
+        if (count > 0) {
+            count--;
+            if (count == 0) {
+                notifyAll();
+            }
+        }
     }
 
     @Override
     public synchronized void set(int value) {
         this.count = value;
     }
-
+    
     @Override
-    public synchronized int get() {
-        return this.count;
-    }
-
-    @Override
-    public synchronized void waitUntil(int value) throws InterruptedException {
-        while (this.count != value) {
+    public synchronized void await() throws InterruptedException {
+        while (this.count > 0) {
             wait();
         }
     }
-
 
 }

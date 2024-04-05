@@ -15,58 +15,59 @@ import java.util.List;
  */
 public class RoadSimStatistics implements SimulationListener {
 
+	
 	private double averageSpeed;
 	private double minSpeed;
 	private double maxSpeed;
-
+	
 	public RoadSimStatistics() {
 	}
-
+	
 	@Override
 	public void notifyInit(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
+		// TODO Auto-generated method stub
+		// log("reset: " + t);
 		averageSpeed = 0;
 	}
 
 	@Override
 	public void notifyStepDone(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
-		double totalSpeed = 0;
+		double avSpeed = 0;
+		
 		maxSpeed = -1;
 		minSpeed = Double.MAX_VALUE;
-
-		for (AbstractAgent agent : agents) {
+		for (AbstractAgent agent: agents) {
 			CarAgent car = (CarAgent) agent;
-			double currentSpeed = car.getCurrentSpeed();
-			totalSpeed += currentSpeed;
-			if (currentSpeed > maxSpeed) {
-				maxSpeed = currentSpeed;
-			}
-			if (currentSpeed < minSpeed) {
-				minSpeed = currentSpeed;
+			double currSpeed = car.getCurrentSpeed();
+			avSpeed += currSpeed;			
+			if (currSpeed > maxSpeed) {
+				maxSpeed = currSpeed;
+			} else if (currSpeed < minSpeed) {
+				minSpeed = currSpeed;
 			}
 		}
-
+		
 		if (!agents.isEmpty()) {
-			averageSpeed = totalSpeed / agents.size();
+			avSpeed /= agents.size();
 		}
-
-		log("Average speed: " + averageSpeed);
-		log("Min speed: " + minSpeed);
-		log("Max speed: " + maxSpeed);
+		log("average speed: " + avSpeed);
 	}
-
+	
 	public double getAverageSpeed() {
-		return averageSpeed;
+		return this.averageSpeed;
 	}
 
 	public double getMinSpeed() {
-		return minSpeed;
+		return this.minSpeed;
 	}
-
+	
 	public double getMaxSpeed() {
-		return maxSpeed;
+		return this.maxSpeed;
 	}
-
+	
+	
 	private void log(String msg) {
 		System.out.println("[STAT] " + msg);
 	}
+
 }

@@ -6,7 +6,5 @@ public interface CountDownMonitor {
 
     void set(int value);
 
-    int get();
-
-    void waitUntil(int value) throws InterruptedException;
+    void await() throws InterruptedException;
 }

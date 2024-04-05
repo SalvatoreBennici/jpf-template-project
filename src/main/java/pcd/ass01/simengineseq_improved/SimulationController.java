@@ -8,13 +8,19 @@ public class SimulationController {
         this.simulation = simulation;
     }
 
+    private static void log(String msg) {
+        System.out.println("[Controller] " + msg);
+    }
+
     public void startEvent(int numSteps) {
         try {
             new Thread(() -> {
                 try {
                     if (!simulation.isRunning()) {
-                        log("[Controller] Starting the simulation...");
+                        log("Starting the simulation...");
                         simulation.run(numSteps);
+                        log("Simulation ended in: " + simulation.getSimulationDuration() + " ms"
+                                + " with an average step of: " + simulation.getAverageTimePerCycle() + " ms");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -41,9 +47,5 @@ public class SimulationController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    private static void log(String msg) {
-        System.out.println("[ Controller ] " + msg);
     }
 }

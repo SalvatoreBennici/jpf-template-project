@@ -107,14 +107,12 @@ public abstract class AbstractSimulation {
             }
 
             try {
-                taskCountDown.waitUntil(0);
+                taskCountDown.await();
             } catch (InterruptedException e) {
-                // Interruption occurred, break out of the loop
                 break;
             }
 
             t += dt;
-
             /* process actions submitted to the environment */
             env.processActions();
 
@@ -132,8 +130,6 @@ public abstract class AbstractSimulation {
         endWallTime = System.currentTimeMillis();
         this.averageTimePerStep = timePerStep / numSteps;
         terminateAllWorkers();
-        System.out.println("[SIMULATION] Simulation Ended in: " + (endWallTime - startWallTime) + " ms");
-        System.out.println("with an average step of: " + averageTimePerStep + " ms");
 
     }
 
@@ -182,7 +178,7 @@ public abstract class AbstractSimulation {
     }
 
     private void notifyNewStep(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
-        listeners.forEach(l -> l.notifyStepDone(t0, agents, env));
+        listeners.forEach(l -> l.notifyStepDone(t, agents, env));
     }
 
     public void addSimulationObserver(SimulationObserver observer) {

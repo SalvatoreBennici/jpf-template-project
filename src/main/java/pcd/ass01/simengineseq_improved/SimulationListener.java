@@ -21,5 +21,4 @@ public interface SimulationListener {
      * @param env
      */
     void notifyStepDone(int t, List<AbstractAgent> agents, AbstractEnvironment env);
-    
 }

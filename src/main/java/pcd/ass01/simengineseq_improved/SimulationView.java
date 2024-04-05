@@ -36,17 +36,17 @@ public class SimulationView extends JFrame implements ActionListener, Simulation
         setLayout(new BorderLayout());
         add(panel, BorderLayout.NORTH);
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    private void stopButton() {
+    private void stopCommand() {
         try {
             controller.stopEvent();
         } catch (Exception ex) {
         }
     }
 
-    private void startButton() {
+    private void startCommand() {
         try {
             int steps = Integer.parseInt(numStepsField.getText());
             if (checkSteps(steps)) {
@@ -64,10 +64,10 @@ public class SimulationView extends JFrame implements ActionListener, Simulation
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
             case "Start":
-                this.startButton();
+                this.startCommand();
                 break;
             case "Stop":
-                this.stopButton();
+                this.stopCommand();
                 break;
             default:
         }

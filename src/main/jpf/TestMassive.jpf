@@ -1,4 +1,4 @@
-target = pcd.lab03.liveness.accounts_exercise.RunTransactions
+target = pcd.ass01.version3_good.TestGUI
 
 classpath=build/classes/java/main
 
