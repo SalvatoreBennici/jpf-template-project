@@ -1,4 +1,4 @@
-package pcd.ass01.simengineseq_improved;
+package pcd.ass01.simengineconc_improved;
 
 /**
  * Base  class for defining types of agents taking part to the simulation

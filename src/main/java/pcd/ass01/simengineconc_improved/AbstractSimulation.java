@@ -1,4 +1,4 @@
-package pcd.ass01.simengineseq_improved;
+package pcd.ass01.simengineconc_improved;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,16 +9,20 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractSimulation {
 
-    /* list of the agents */
+    public static final int BUFFER_SIZE = 5000;
+    /* data structure for the simulation */
     private final List<AbstractAgent> agents;
+    private AbstractEnvironment env;
     /* simulation listeners */
     private final List<SimulationListener> listeners;
     private final List<SimulationObserver> observers;
-    private final BoundedBuffer<Task> taskQueue;
+    /* data structure for concurrent version */
     private final List<Worker> workerThreads;
+    /* data structure for sync */
+    private final BoundedBuffer<Task> taskQueue;
     private final CountDownMonitor taskCountDown;
-    /* environment of the simulation */
-    private AbstractEnvironment env;
+    private final FlagMonitor isRunning;
+
     /* logical time step */
     private int dt;
     /* initial logical time */
@@ -31,24 +35,17 @@ public abstract class AbstractSimulation {
     private long startWallTime;
     private long endWallTime;
     private long averageTimePerStep;
-    private boolean isRunning;
-
 
     protected AbstractSimulation() {
         agents = new ArrayList<>();
         listeners = new ArrayList<>();
         workerThreads = new ArrayList<>();
-        taskQueue = new SimpleBoundedBuffer<>(5000);
+        taskQueue = new SimpleBoundedBuffer<>(BUFFER_SIZE);
         taskCountDown = new SimpleCountDownMonitor();
         observers = new ArrayList<>();
         toBeInSyncWithWallTime = false;
-        isRunning = false;
+        isRunning = new FlagMonitor();
     }
-
-    public void stopSimulation() {
-        this.isRunning = false;
-    }
-
 
     private void createWorkers() {
         int numThreads = Runtime.getRuntime().availableProcessors();
@@ -71,7 +68,6 @@ public abstract class AbstractSimulation {
      * @param numSteps The number of steps to run the simulation for
      */
     public void run(int numSteps) {
-        updateState(true);
         startWallTime = System.currentTimeMillis();
 
         /* initialize the env and the agents inside */
@@ -81,15 +77,13 @@ public abstract class AbstractSimulation {
         agents.forEach(a -> a.init(env));
 
         this.notifyReset(t, agents, env);
-
         long timePerStep = 0;
         int nSteps = 0;
 
         createWorkers();
-
-        while ((nSteps < numSteps) && isRunning) {
+        updateState(true);
+        while ((nSteps < numSteps) && isRunning.getFlag()) {
             currentWallTime = System.currentTimeMillis();
-
             /* make a step */
             env.step(dt);
 
@@ -106,10 +100,11 @@ public abstract class AbstractSimulation {
                 }
             }
 
+            /* wait until each agent has taken a step */
             try {
                 taskCountDown.await();
             } catch (InterruptedException e) {
-                break;
+                throw new RuntimeException(e);
             }
 
             t += dt;
@@ -117,11 +112,10 @@ public abstract class AbstractSimulation {
             env.processActions();
 
             notifyNewStep(t, agents, env);
-            notifyObservers(isRunning);
+            notifyObservers(isRunning.getFlag());
 
             nSteps++;
             timePerStep += System.currentTimeMillis() - currentWallTime;
-
             if (toBeInSyncWithWallTime) {
                 syncWithWallTime();
             }
@@ -130,7 +124,6 @@ public abstract class AbstractSimulation {
         endWallTime = System.currentTimeMillis();
         this.averageTimePerStep = timePerStep / numSteps;
         terminateAllWorkers();
-
     }
 
 
@@ -183,12 +176,12 @@ public abstract class AbstractSimulation {
 
     public void addSimulationObserver(SimulationObserver observer) {
         this.observers.add(observer);
-        notifyObservers(isRunning);
+        notifyObservers(isRunning.getFlag());
     }
 
     private void updateState(boolean running) {
-        this.isRunning = running;
-        notifyObservers(isRunning);
+        isRunning.setFlag(running);
+        notifyObservers(isRunning.getFlag());
     }
 
     private void notifyObservers(boolean running) {
@@ -209,7 +202,7 @@ public abstract class AbstractSimulation {
         }
     }
 
-    public boolean isRunning() {
+    public FlagMonitor getFlag() {
         return isRunning;
     }
 }

@@ -1,4 +1,4 @@
-target = pcd.ass01.simtrafficexamples_improved.RunTrafficSimulation
+target = pcd.ass01.simtrafficexamples_improved.RunTrafficSimulationJPF
 
 classpath=build/classes/java/main
 

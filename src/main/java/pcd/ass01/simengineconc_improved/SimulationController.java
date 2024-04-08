@@ -1,11 +1,13 @@
-package pcd.ass01.simengineseq_improved;
+package pcd.ass01.simengineconc_improved;
 
 public class SimulationController {
 
     private final AbstractSimulation simulation;
+    private final FlagMonitor isRunning;
 
     public SimulationController(AbstractSimulation simulation) {
         this.simulation = simulation;
+        this.isRunning = simulation.getFlag();
     }
 
     private static void log(String msg) {
@@ -16,11 +18,10 @@ public class SimulationController {
         try {
             new Thread(() -> {
                 try {
-                    if (!simulation.isRunning()) {
+                    if (!isRunning.getFlag()) {
                         log("Starting the simulation...");
                         simulation.run(numSteps);
-                        log("Simulation ended in: " + simulation.getSimulationDuration() + " ms"
-                                + " with an average step of: " + simulation.getAverageTimePerCycle() + " ms");
+                        log("Simulation ended");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -35,10 +36,9 @@ public class SimulationController {
         try {
             new Thread(() -> {
                 try {
-                    if (simulation.isRunning()) {
+                    if (isRunning.getFlag()) {
                         log("Stopping the simulation...");
-                        simulation.stopSimulation();
-                        log("Stopping simulation done.");
+                        isRunning.setFlag(false);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

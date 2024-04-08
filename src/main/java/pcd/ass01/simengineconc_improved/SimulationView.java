@@ -1,4 +1,4 @@
-package pcd.ass01.simengineseq_improved;
+package pcd.ass01.simengineconc_improved;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +41,7 @@ public class SimulationView extends JFrame implements ActionListener, Simulation
 
     private void stopCommand() {
         try {
+            stopButton.setEnabled(false);
             controller.stopEvent();
         } catch (Exception ex) {
         }
@@ -48,6 +49,7 @@ public class SimulationView extends JFrame implements ActionListener, Simulation
 
     private void startCommand() {
         try {
+            stopButton.setEnabled(false);
             int steps = Integer.parseInt(numStepsField.getText());
             if (checkSteps(steps)) {
                 controller.startEvent(steps);
@@ -77,5 +79,11 @@ public class SimulationView extends JFrame implements ActionListener, Simulation
     public void simulationUpdated(boolean isRunning) {
         startButton.setEnabled(!isRunning);
         stopButton.setEnabled(isRunning);
+    }
+
+    public void display() {
+        SwingUtilities.invokeLater(() -> {
+            this.setVisible(true);
+        });
     }
 }

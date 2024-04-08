@@ -1,4 +1,4 @@
-package pcd.ass01.simengineseq_improved;
+package pcd.ass01.simengineconc_improved;
 
 public class SimpleCountDownMonitor implements CountDownMonitor {
 
@@ -25,7 +25,7 @@ public class SimpleCountDownMonitor implements CountDownMonitor {
     public synchronized void set(int value) {
         this.count = value;
     }
-    
+
     @Override
     public synchronized void await() throws InterruptedException {
         while (this.count > 0) {

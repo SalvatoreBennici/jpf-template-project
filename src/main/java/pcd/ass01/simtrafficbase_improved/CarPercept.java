@@ -1,12 +1,12 @@
 package pcd.ass01.simtrafficbase_improved;
 
-import java.util.Optional;
+import pcd.ass01.simengineconc_improved.Percept;
 
-import pcd.ass01.simengineseq_improved.Percept;
+import java.util.Optional;
 
 /**
  * Percept for Car Agents
- *
+ * <p>
  * - position on the road
  * - nearest car, if present (distance)
  * - nearest semaphore, if present (distance)

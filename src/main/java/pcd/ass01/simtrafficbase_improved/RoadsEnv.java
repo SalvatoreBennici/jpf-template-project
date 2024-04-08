@@ -1,8 +1,8 @@
 package pcd.ass01.simtrafficbase_improved;
 
-import pcd.ass01.simengineseq_improved.AbstractEnvironment;
-import pcd.ass01.simengineseq_improved.Action;
-import pcd.ass01.simengineseq_improved.Percept;
+import pcd.ass01.simengineconc_improved.AbstractEnvironment;
+import pcd.ass01.simengineconc_improved.Action;
+import pcd.ass01.simengineconc_improved.Percept;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,13 +14,13 @@ public class RoadsEnv extends AbstractEnvironment {
     private static final int SEM_DETECTION_RANGE = 30;
 
     /* list of roads */
-    private List<Road> roads;
+    private final List<Road> roads;
 
     /* traffic lights */
-    private List<TrafficLight> trafficLights;
+    private final List<TrafficLight> trafficLights;
 
     /* cars situated in the environment */
-    private HashMap<String, CarAgentInfo> registeredCars;
+    private final HashMap<String, CarAgentInfo> registeredCars;
 
 
     public RoadsEnv() {
@@ -58,11 +58,13 @@ public class RoadsEnv extends AbstractEnvironment {
 
     @Override
     public Percept getCurrentPercepts(String agentId) {
+
         CarAgentInfo carInfo = registeredCars.get(agentId);
         double pos = carInfo.getPos();
         Road road = carInfo.getRoad();
         Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road, pos, CAR_DETECTION_RANGE);
         Optional<TrafficLightInfo> nearestSem = getNearestSemaphoreInFront(road, pos, SEM_DETECTION_RANGE);
+
         return new CarPercept(pos, nearestCar, nearestSem);
     }
 
@@ -87,19 +89,21 @@ public class RoadsEnv extends AbstractEnvironment {
 
 
     private Optional<TrafficLightInfo> getNearestSemaphoreInFront(Road road, double carPos, double range) {
-        TrafficLightInfo nearestSemaphore = null;
-        double minDistance = Double.MAX_VALUE;
-        for (TrafficLightInfo tl : road.getTrafficLights()) {
-            if (tl.getRoadPos() <= carPos) {
-                continue;
-            }
-            double dist = tl.getRoadPos() - carPos;
-            if (dist <= range && dist < minDistance) {
-                nearestSemaphore = tl;
-                minDistance = dist;
+        List<TrafficLightInfo> trafficLights = road.getTrafficLights();
+        Optional<TrafficLightInfo> nearestTrafficLight = Optional.empty();
+        double minDistance = Double.POSITIVE_INFINITY;
+
+        for (TrafficLightInfo tl : trafficLights) {
+            if (tl.getRoadPos() > carPos) {
+                double distance = tl.getRoadPos() - carPos;
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestTrafficLight = Optional.of(tl);
+                }
             }
         }
-        return Optional.ofNullable(nearestSemaphore);
+
+        return nearestTrafficLight;
     }
 
 
